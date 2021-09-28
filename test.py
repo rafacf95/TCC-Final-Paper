@@ -17,7 +17,6 @@ validation_dir = os.path.join(PATH, 'validation')
 BATCH_SIZE = 50
 IMG_SIZE = (100, 100)
 
-# Load the images
 train_dataset = image_dataset_from_directory(train_dir, shuffle=True, batch_size=BATCH_SIZE, image_size=IMG_SIZE)
 validation_dataset = image_dataset_from_directory(validation_dir, shuffle=True, batch_size=BATCH_SIZE, image_size=IMG_SIZE)
 
@@ -34,8 +33,6 @@ for images, labels in train_dataset.take(1):
         plt.axis("off")
 plt.show()
 
-
-# Take a small portion of the training dataset for validation
 val_batches = tf.data.experimental.cardinality(validation_dataset)
 test_dataset = validation_dataset.take(val_batches // 2)
 validation_dataset = validation_dataset.skip(val_batches // 2)
@@ -43,9 +40,7 @@ validation_dataset = validation_dataset.skip(val_batches // 2)
 print('Number of Train batches: %d' % tf.data.experimental.cardinality(train_dataset))
 print('Number of validation batches: %d' % tf.data.experimental.cardinality(validation_dataset))
 print('Number of test batches: %d' % tf.data.experimental.cardinality(test_dataset))
-#input("")
 
-# Buffer dataset to speed up trainingdf
 AUTOTUNE = tf.data.AUTOTUNE
 
 train_dataset = train_dataset.prefetch(buffer_size=AUTOTUNE)
@@ -66,17 +61,12 @@ mLoss = 0
 mAcc = 0
 aux = 0
 for i in range(5):
-    # Evaluate model
     loss, accuracy = model.evaluate(test_dataset)
     print('Test accuracy :', accuracy)
-    # input("")
 
-    # Test model in a batch of images
-    # Retrieve a batch of images from the test set
     image_batch, label_batch = test_dataset.as_numpy_iterator().next()
     predictions = model.predict_on_batch(image_batch).flatten()
 
-    # Apply a sigmoid since our model returns logits
     predictions = tf.nn.sigmoid(predictions)
     predictions = tf.where(predictions < 0.5, 0, 1)
 
@@ -103,8 +93,6 @@ for i in range(9):
     plt.axis("off")
 plt.show()
 
-
-#print('Predictions:\n', predictions.numpy())
 for i in predictions.numpy():
     print(class_names[i])
 print("")
