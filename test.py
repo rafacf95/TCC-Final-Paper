@@ -17,7 +17,6 @@ validation_dir = os.path.join(PATH, 'validation')
 BATCH_SIZE = 50
 IMG_SIZE = (100, 100)
 
-# Load the images
 train_dataset = image_dataset_from_directory(train_dir, shuffle=True, batch_size=BATCH_SIZE, image_size=IMG_SIZE)
 validation_dataset = image_dataset_from_directory(validation_dir, shuffle=True, batch_size=BATCH_SIZE, image_size=IMG_SIZE)
 
@@ -34,8 +33,6 @@ for images, labels in train_dataset.take(1):
         plt.axis("off")
 plt.show()
 
-
-# Take a small portion of the training dataset for validation
 val_batches = tf.data.experimental.cardinality(validation_dataset)
 test_dataset = validation_dataset.take(val_batches // 2)
 validation_dataset = validation_dataset.skip(val_batches // 2)
@@ -43,9 +40,7 @@ validation_dataset = validation_dataset.skip(val_batches // 2)
 print('Number of Train batches: %d' % tf.data.experimental.cardinality(train_dataset))
 print('Number of validation batches: %d' % tf.data.experimental.cardinality(validation_dataset))
 print('Number of test batches: %d' % tf.data.experimental.cardinality(test_dataset))
-#input("")
 
-# Buffer dataset to speed up trainingdf
 AUTOTUNE = tf.data.AUTOTUNE
 
 train_dataset = train_dataset.prefetch(buffer_size=AUTOTUNE)
@@ -64,18 +59,14 @@ list1 = list()
 list2 = list()
 mLoss = 0
 mAcc = 0
+aux = 0
 for i in range(5):
-    # Evaluate model
     loss, accuracy = model.evaluate(test_dataset)
     print('Test accuracy :', accuracy)
-    # input("")
 
-    # Test model in a batch of images
-    # Retrieve a batch of images from the test set
     image_batch, label_batch = test_dataset.as_numpy_iterator().next()
     predictions = model.predict_on_batch(image_batch).flatten()
 
-    # Apply a sigmoid since our model returns logits
     predictions = tf.nn.sigmoid(predictions)
     predictions = tf.where(predictions < 0.5, 0, 1)
 
@@ -86,9 +77,10 @@ for i in range(5):
     list2 = np.append(list2, label_batch)
     mLoss = mLoss + loss
     mAcc = mAcc + accuracy
+    aux = aux + 1
 
-mLoss = mLoss / 5
-mAcc = mAcc / 5
+mLoss = mLoss / aux
+mAcc = mAcc / aux
 
 print("Loss media = ", mLoss)
 print("Acc media = ", mAcc)
@@ -101,8 +93,6 @@ for i in range(9):
     plt.axis("off")
 plt.show()
 
-
-#print('Predictions:\n', predictions.numpy())
 for i in predictions.numpy():
     print(class_names[i])
 print("")
@@ -115,10 +105,17 @@ print("")
 y_actu = pd.Series(list2, name='Real')
 y_pred = pd.Series(list1, name='Previsto')
 df_confusion = pd.crosstab(y_actu, y_pred)
-#df_conf_norm = df_confusion / df_confusion.sum(axis=1)
+#df_conf_norm = (df_confusion / 250)
+df_conf_norm2 = (df_confusion / (BATCH_SIZE * aux))
+print(BATCH_SIZE * aux)
 
 sns.heatmap(df_confusion, cmap='Blues', annot=True, fmt="d", xticklabels=class_names, yticklabels=class_names)
 plt.show()
 
-#sns.heatmap(df_conf_norm, cmap='Blues', annot=True, fmt="d", xticklabels=class_names, yticklabels=class_names)
+#plt.figure(figsize=(4.5, 4.5))
+#sns.heatmap(df_conf_norm, cmap='Blues', annot=True, fmt=".2%", xticklabels=class_names, yticklabels=class_names, cbar=False)
 #plt.show()
+
+plt.figure(figsize=(4.5, 4.5))
+sns.heatmap(df_conf_norm2, cmap='Blues', annot=True, fmt=".2%", xticklabels=class_names, yticklabels=class_names, cbar=False)
+plt.show()
