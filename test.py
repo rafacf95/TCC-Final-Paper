@@ -4,10 +4,6 @@ import os
 import tensorflow as tf
 from tensorflow.keras.preprocessing import image_dataset_from_directory
 import pandas as pd
-from sklearn.metrics import confusion_matrix
-from sklearn.utils.multiclass import unique_labels
-from sklearn.metrics import pairwise_distances
-from sklearn.metrics import precision_recall_fscore_support
 import seaborn as sns
 
 PATH = "data"
@@ -105,16 +101,10 @@ print("")
 y_actu = pd.Series(list2, name='Real')
 y_pred = pd.Series(list1, name='Previsto')
 df_confusion = pd.crosstab(y_actu, y_pred)
-#df_conf_norm = (df_confusion / 250)
 df_conf_norm2 = (df_confusion / (BATCH_SIZE * aux))
-print(BATCH_SIZE * aux)
 
 sns.heatmap(df_confusion, cmap='Blues', annot=True, fmt="d", xticklabels=class_names, yticklabels=class_names)
 plt.show()
-
-#plt.figure(figsize=(4.5, 4.5))
-#sns.heatmap(df_conf_norm, cmap='Blues', annot=True, fmt=".2%", xticklabels=class_names, yticklabels=class_names, cbar=False)
-#plt.show()
 
 plt.figure(figsize=(4.5, 4.5))
 sns.heatmap(df_conf_norm2, cmap='Blues', annot=True, fmt=".2%", xticklabels=class_names, yticklabels=class_names, cbar=False)
