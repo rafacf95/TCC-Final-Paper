@@ -157,4 +157,4 @@ for img in glob.glob(inputFolder2 + "/*.jpg"):
     cv2.imwrite(output2 + get_random_string(8) + '.jpg', r3)
 
 
-# most of this scrip was made by tranleanh and his github can be found at https://github.com/tranleanh
+# most of this script was made by tranleanh and his github can be found at https://github.com/tranleanh
